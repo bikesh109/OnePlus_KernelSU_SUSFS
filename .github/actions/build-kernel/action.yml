@@ -1141,7 +1141,7 @@ runs:
 
         cd "$COMMON_KERNEL_FOLDER"
 
-        COMPAT_PY="${GITHUB_WORKSPACE}/scripts/kernel_fix_patches/apply_kernel_compat.py"
+        COMPAT_PY="${GITHUB_WORKSPACE}/action-source/scripts/kernel_fix_patches/apply_kernel_compat.py"
         # Outside the kernel tree so git clean / repo sync cannot wipe it.
         COMPAT_STATE="${RUNNER_TEMP}/susfs-compat-state-${ANDROID_VER}-${KERNEL_VER}.json"
 
@@ -1229,6 +1229,8 @@ runs:
 
         python3 "$COMPAT_PY" --stage 2 --root "$COMMON_KERNEL_FOLDER" --kmi "$KMI" --sublevel "$SUBLEVEL" --soc "$OP_SOC" --state "$COMPAT_STATE"
 
+        patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/common/hide_adb_jdwp_sockets.patch"
+
         echo "✅ SUSFS patches applied"
         
         echo "Add SUSFS Configuration Settings"
@@ -1249,6 +1251,7 @@ runs:
         CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
         CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
         CONFIG_KSU_SUSFS_SUS_MAP=y
+        CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER=y
         CONFIG_KSU_SUSFS_SUS_SU=n
         EOF
         
@@ -1701,7 +1704,8 @@ runs:
         CONFIG_DEVTMPFS=y
         CONFIG_PID_NS=y
         CONFIG_POSIX_MQUEUE=y
-        CONFIG_NETFILTER_XT_TARGET_REJECT=y
+        CONFIG_IP_NF_TARGET_REJECT=y
+        CONFIG_IP6_NF_TARGET_REJECT=y
         CONFIG_NETFILTER_XT_TARGET_LOG=y
         CONFIG_NETFILTER_XT_MATCH_RECENT=y
         CONFIG_USER_NS=y
